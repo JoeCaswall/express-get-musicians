@@ -31,7 +31,7 @@ describe("./musicians endpoint", () => {
   });
 });
 
-describe("./musicians/id endpoint", () => {
+describe("./musicians/:id endpoint", () => {
   it("reaches endpoint successfully", async () => {
     const response = await request(app).get("/musicians/1");
     expect(response.statusCode).toBe(200);

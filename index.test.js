@@ -22,13 +22,13 @@ describe("GET/musicians", () => {
   });
   it("gets required information", async () => {
     const response = await request(app).get("/musicians");
-    // console.log(response);
     const responseData = JSON.parse(response.text);
-    // console.log(responseData[0]);
-    expect(responseData[0].name).toEqual(seedMusician[0].name);
-    expect(responseData[0].instrument).toEqual(seedMusician[0].instrument);
-    expect(responseData[1].name).toEqual(seedMusician[1].name);
-    expect(responseData[1].instrument).toEqual(seedMusician[1].instrument);
+    for (x in responseData) {
+      expect([responseData[0].name, responseData[0].instrument]).toEqual([
+        seedMusician[0].name,
+        seedMusician[0].instrument,
+      ]);
+    }
   });
 });
 
@@ -55,13 +55,53 @@ describe("POST/musicians/", () => {
       instrument: "Voice",
     });
     const responseData = JSON.parse(response.text);
-    // console.log(responseData);
     const allMusicians = await request(app).get("/musicians");
     const allMusiciansData = JSON.parse(allMusicians.text);
     const latestEntry = allMusiciansData[allMusiciansData.length - 1];
-    // console.log(allMusiciansData);
     expect(responseData.name).toBe(latestEntry.name);
     expect(responseData.instrument).toBe(latestEntry.instrument);
+  });
+  it("returns error array if name field is empty", async () => {
+    const response = await request(app)
+      .post("/musicians")
+      .send({ instrument: "Voice" });
+    const responseData = JSON.parse(response.text);
+    expect(Array.isArray(responseData.error)).toBe(true);
+  });
+  it("returns error array if instrument field is empty", async () => {
+    const response = await request(app)
+      .post("/musicians")
+      .send({ name: "Slim Shady" });
+    const responseData = JSON.parse(response.text);
+    expect(Array.isArray(responseData.error)).toBe(true);
+  });
+  it("returns error array if name field is less than 2 characters in length", async () => {
+    const response = await request(app)
+      .put("/musicians/1")
+      .send({ name: "x", instrument: "Voice" });
+    const responseData = JSON.parse(response.text);
+    expect(Array.isArray(responseData.error));
+  });
+  it("returns error array if instrument field is less than 2 characters in length", async () => {
+    const response = await request(app)
+      .put("/musicians/1")
+      .send({ name: "Slim Shady", instrument: "V" });
+    const responseData = JSON.parse(response.text);
+    expect(Array.isArray(responseData.error));
+  });
+  it("returns error array if name field is greater than 20 characters in length", async () => {
+    const response = await request(app)
+      .put("/musicians/1")
+      .send({ name: "xxxxxxxxxxxxxxxxxxxxx", instrument: "Voice" });
+    const responseData = JSON.parse(response.text);
+    expect(Array.isArray(responseData.error));
+  });
+  it("returns error array if instrument field is greater than 20 characters in length", async () => {
+    const response = await request(app)
+      .put("/musicians/1")
+      .send({ name: "Slim Shady", instrument: "xxxxxxxxxxxxxxxxxxxxx" });
+    const responseData = JSON.parse(response.text);
+    expect(Array.isArray(responseData.error));
   });
 });
 

@@ -28,7 +28,7 @@ musicianRouter.put("/:id", async (req, res) => {
 });
 
 musicianRouter.delete("/:id", async (req, res) => {
-  const deletedMusician = await Musician.destroy({
+  await Musician.destroy({
     where: { id: req.params.id },
   });
   const allMusicians = await Musician.findAll();
